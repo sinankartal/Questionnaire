@@ -2,23 +2,23 @@ using Application.Validator;
 
 namespace Common.Responses;
 
-public class GenericResponse
+public class Response
 {
     public bool IsValid { get; set; }
     public IReadOnlyList<Notification> Notifications { get; set; }
 
-    public GenericResponse()
+    public Response()
     {
         Notifications = new List<Notification>();
     }
 
-    public static GenericResponse Success()
+    public static Response Success()
     {
-        return new GenericResponse { IsValid = true };
+        return new Response { IsValid = true };
     }
 
-    public static GenericResponse Failure(IReadOnlyList<Notification> notifications)
+    public static Response Failure(IReadOnlyList<Notification> notifications)
     {
-        return new GenericResponse { IsValid = false, Notifications = notifications };
+        return new Response { IsValid = false, Notifications = notifications };
     }
 }

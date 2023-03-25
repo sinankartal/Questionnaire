@@ -2,6 +2,7 @@ using System.Net;
 using AutoMapper;
 using Common;
 using Common.DTOs;
+using Common.Responses;
 using Persistence.IRepositories;
 using Persistence.Models;
 
@@ -18,10 +19,12 @@ public class SurveyService : ISurveyService
         _mapper = mapper;
     }
 
-    public async Task<List<SurveyDTO>> GetAll()
+    public async Task<TypedResponse<List<SurveyDTO>>> GetAll()
     {
         List<Survey> surveys = await _surveyRepository.GetAll();
 
-        return _mapper.Map<List<SurveyDTO>>(surveys);
+        var dtos = _mapper.Map<List<SurveyDTO>>(surveys);
+
+        return TypedResponse<List<SurveyDTO>>.Success(dtos);
     }
 }

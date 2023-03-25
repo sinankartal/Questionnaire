@@ -6,7 +6,9 @@ namespace Application;
 
 public interface IAnswerService
 {
-    Task<GenericResponse> ProcessAsync(PostUserAnswersRequest dto);
+    Task<Response> ProcessAsync(PostUserAnswersRequest dto);
 
-    Task<TypedGenericResponse<List<AnswerDTO>>> GetUserSurveyAnswers(GetUserSurveyAnswersRequest request);
+    Task<TypedResponse<List<AnswerDTO>>> GetUserSurveyAnswers(GetUserSurveyAnswersRequest request);
+
+    Task<TypedResponse<StatisticsDTO>> GetAnswerStatistics(int surveyId);
 }

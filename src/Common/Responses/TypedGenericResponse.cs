@@ -2,17 +2,17 @@ using Application.Validator;
 
 namespace Common.Responses;
 
-public class TypedGenericResponse<T> : GenericResponse
+public class TypedResponse<T> : Response
 {
     public T Data { get; set; }
 
-    public static TypedGenericResponse<T> Success(T data)
+    public static TypedResponse<T> Success(T data)
     {
-        return new TypedGenericResponse<T> { IsValid = true, Data = data };
+        return new TypedResponse<T> { IsValid = true, Data = data };
     }
 
-    public static TypedGenericResponse<T> Failure(IReadOnlyList<Notification> notifications)
+    public static TypedResponse<T> Failure(IReadOnlyList<Notification> notifications)
     {
-        return new TypedGenericResponse<T> { IsValid = false, Notifications = notifications };
+        return new TypedResponse<T> { IsValid = false, Notifications = notifications };
     }
 }

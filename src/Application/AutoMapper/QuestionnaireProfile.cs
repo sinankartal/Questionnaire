@@ -34,13 +34,14 @@ public class QuestionnaireProfile : Profile
             .ForMember(dest => dest.QuestionAnswers, opt => opt.MapFrom(src => new List<QuestionAnswerDTO> { new QuestionAnswerDTO
             {
                 QuestionId = src.QuestionId,
-                AnswerOptions = src.AnswerOption != null ? new List<AnswerOptionDTO> { new AnswerOptionDTO
+                Texts = src.Question.Texts,
+                Answers = src.AnswerOption != null ? new List<AnswerOptionDTO> { new AnswerOptionDTO
                 {
                     Id = src.AnswerOption.Id,
                     OrderNumber = src.AnswerOption.OrderNumber,
                     Texts = src.AnswerOption.Texts
                 }} : null,
-                AnswerText = src.AnswerText
+                AnswerText = src.AnswerText,
             }}));
 
     }

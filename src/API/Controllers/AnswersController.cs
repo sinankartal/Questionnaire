@@ -19,14 +19,20 @@ public class AnswersController
     }
     
     [HttpPost()]
-    public async Task<ActionResult<GenericResponse>> ProcessAsync(PostUserAnswersRequest dto)
+    public async Task<ActionResult<Response>> ProcessAsync(PostUserAnswersRequest dto)
     {
         return await _answerService.ProcessAsync(dto);
     }
     
     [HttpGet("user/{userId}/survey/{surveyId}")]
-    public async Task<ActionResult<GenericResponse>> GetUserSurveyAnswers(int userId, int surveyId)
+    public async Task<ActionResult<Response>> GetUserSurveyAnswers(int userId, int surveyId)
     {
         return await _answerService.GetUserSurveyAnswers(new GetUserSurveyAnswersRequest(surveyId, userId));
+    }
+    
+    [HttpGet("statistics/survey/{surveyId}")]
+    public async Task<ActionResult<TypedResponse<StatisticsDTO>>> GetAnswerStatistics(int surveyId)
+    {
+        return await _answerService.GetAnswerStatistics(surveyId);
     }
 }

@@ -1,8 +1,9 @@
 using Common.DTOs;
+using Common.Responses;
 
 namespace Application;
 
 public interface ISurveyService
 {
-    Task<List<SurveyDTO>> GetAll();
+    Task<TypedResponse<List<SurveyDTO>>> GetAll();
 }
