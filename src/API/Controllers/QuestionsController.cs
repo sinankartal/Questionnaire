@@ -9,7 +9,7 @@ namespace API.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
-public class QuestionsController
+public class QuestionsController : ControllerBase
 {
     private readonly IQuestionService _questionService;
 
@@ -22,6 +22,10 @@ public class QuestionsController
     public async Task<ActionResult<TypedResponse<List<QuestionDTO>>>> GetBySurveyIdPageable(int surveyId,
         [FromQuery] int skip = 0, [FromQuery] int limit = 10)
     {
+        if (surveyId <= 0)
+        {
+            return BadRequest("surveyId must be positive, non-zero values.");
+        }
         return await _questionService.GetBySurveyIdPageable(surveyId, skip, limit);
     }
 
@@ -29,6 +33,10 @@ public class QuestionsController
     public async Task<ActionResult<TypedResponse<List<QuestionDTO>>>> GetBySubjectIdPageable(int subjectId,
         [FromQuery] int skip = 0, [FromQuery] int limit = 10)
     {
+        if (subjectId <= 0)
+        {
+            return BadRequest("subjectId must be positive, non-zero values.");
+        }
         return await _questionService.GetBySubjectIdPageable(subjectId, skip, limit);
     }
 }

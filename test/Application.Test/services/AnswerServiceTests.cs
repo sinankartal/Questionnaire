@@ -41,7 +41,6 @@ public class AnswerServiceTests
         // Arrange
         var request = new PostUserAnswersRequest
         {
-            Id = 1,
             SurveyId = 1,
             UserId = 1,
             Department = "DEVELOPMENT",
@@ -74,7 +73,6 @@ public class AnswerServiceTests
         // Arrange
         var request = new PostUserAnswersRequest
         {
-            Id = 1,
             SurveyId = 1,
             UserId = 1,
             Department = "SALES",

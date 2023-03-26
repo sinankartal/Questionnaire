@@ -97,18 +97,17 @@ public class AnswerService : IAnswerService
             foreach (var questionId in questions)
             {
                 var departmentStats = new Dictionary<string, AnswerStatisticDTO>();
-                var departments = Enum.GetValues(typeof(Department)).Cast<Department>().ToList();
-
+                var departments = answerGroups.Select(s => s.Department);
+                
                 foreach (var department in departments)
                 {
-                    string departmentString = department.ToString();
                     var departmentAnswerGroup = answerGroups.FirstOrDefault(ag =>
                         ag.QuestionId == questionId &&
-                        ag.Department.Equals(departmentString, StringComparison.OrdinalIgnoreCase));
+                        ag.Department.Equals(department, StringComparison.OrdinalIgnoreCase));
 
                     if (departmentAnswerGroup != null && departmentAnswerGroup.Answers.Count > 0)
                     {
-                        GetDepartmentStatistics(departmentAnswerGroup.Answers, departmentStats, departmentString);
+                        GetDepartmentStatistics(departmentAnswerGroup.Answers, departmentStats, department);
                     }
                 }
 
@@ -125,13 +124,13 @@ public class AnswerService : IAnswerService
     }
 
     private static void GetDepartmentStatistics(List<Answer> answers, Dictionary<string, AnswerStatisticDTO> departmentStats,
-        string departmentString)
+        string department)
     {
         var min = answers.Min(a => a.AnswerOption.Score);
         var max = answers.Max(a => a.AnswerOption.Score);
         var avg = answers.Average(a => a.AnswerOption.Score);
 
-        departmentStats[departmentString] = new AnswerStatisticDTO { Min = min, Max = max, Avg = avg };
+        departmentStats[department] = new AnswerStatisticDTO { Min = min, Max = max, Avg = avg };
     }
 
 
