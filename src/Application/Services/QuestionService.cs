@@ -3,6 +3,7 @@ using AutoMapper;
 using Common.DTOs;
 using Common.Responses;
 using Persistence.IRepositories;
+using Persistence.Models;
 
 namespace Application.Services;
 
@@ -34,7 +35,7 @@ public class QuestionService : IQuestionService
             return TypedResponse<List<QuestionDTO>>.Failure(notifications);
         }
 
-        var questions = await _questionRepository.GetBySurveyIdPageable(surveyId, skip, limit);
+        List<Question> questions = await _questionRepository.GetBySurveyIdPageable(surveyId, skip, limit);
 
         var dtos = _mapper.Map<List<QuestionDTO>>(questions);
 
