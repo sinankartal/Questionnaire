@@ -39,5 +39,8 @@ public class AnswerRepository : Repository<Answer>, IAnswerRepository
         
     }
 
-
+    public Task<bool> ExistsBySurveyId(int surveyId)
+    {
+        return _dbContext.Answers.AnyAsync(a => a.SurveyId.Equals(surveyId));
+    }
 }

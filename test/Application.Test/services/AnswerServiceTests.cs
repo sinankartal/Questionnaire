@@ -1,5 +1,6 @@
 using Application.Services;
 using Application.Validator;
+using Application.Validator.IValidators;
 using AutoMapper;
 using Common.DTOs;
 using Common.Requests;
@@ -16,6 +17,7 @@ public class AnswerServiceTests
     private readonly Mock<ISurveyRepository> _surveyRepositoryMock;
     private readonly Mock<ICustomValidator<PostUserAnswersRequest>> _processValidatorMock;
     private readonly Mock<ICustomValidator<GetUserSurveyAnswersRequest>> _getUserSurveyAnswerValidatorMock;
+    private readonly Mock<IGetAnswerStatisticsValidator> _getAnswerStatisticsValidatorMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly IAnswerService _answerService;
 
@@ -25,14 +27,11 @@ public class AnswerServiceTests
         _surveyRepositoryMock = new Mock<ISurveyRepository>();
         _processValidatorMock = new Mock<ICustomValidator<PostUserAnswersRequest>>();
         _getUserSurveyAnswerValidatorMock = new Mock<ICustomValidator<GetUserSurveyAnswersRequest>>();
+        _getAnswerStatisticsValidatorMock = new Mock<IGetAnswerStatisticsValidator>();
         _mapperMock = new Mock<IMapper>();
-        _answerService = new AnswerService(
-            _answerRepositoryMock.Object,
-            _processValidatorMock.Object,
-            _surveyRepositoryMock.Object,
-            _getUserSurveyAnswerValidatorMock.Object,
-            _mapperMock.Object
-        );
+        _answerService = new AnswerService(_answerRepositoryMock.Object, _processValidatorMock.Object,
+            _surveyRepositoryMock.Object, _getUserSurveyAnswerValidatorMock.Object,
+            _getAnswerStatisticsValidatorMock.Object, _mapperMock.Object);
     }
 
     [Fact]
@@ -176,6 +175,7 @@ public class AnswerServiceTests
         int surveyId = 1;
 
         _surveyRepositoryMock.Setup(x => x.Exists(surveyId)).ReturnsAsync(true);
+        _getAnswerStatisticsValidatorMock.Setup(x => x.ValidateAsync(surveyId)).ReturnsAsync(true);
 
         var question = new Question
         {

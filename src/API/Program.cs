@@ -5,6 +5,7 @@ using Application;
 using Application.AutoMapper;
 using Application.Services;
 using Application.Validator;
+using Application.Validator.IValidators;
 using AutoMapper;
 using Common.DTOs;
 using Common.Requests;
@@ -102,7 +103,7 @@ builder.Services.AddScoped<IAnswerOptionRepository, AnswerOptionRepository>();
 
 builder.Services.AddScoped<ICustomValidator<PostUserAnswersRequest>, AnswerProcessValidator>();
 builder.Services.AddScoped<ICustomValidator<GetUserSurveyAnswersRequest>, GetUserSurveyAnswersValidator>();
-
+builder.Services.AddScoped<IGetAnswerStatisticsValidator, GetAnswerStatisticsValidator>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

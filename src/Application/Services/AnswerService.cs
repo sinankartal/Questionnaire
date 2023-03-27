@@ -1,7 +1,7 @@
 using Application.Validator;
+using Application.Validator.IValidators;
 using AutoMapper;
 using Common.DTOs;
-using Common.Enums;
 using Common.Requests;
 using Common.Responses;
 using Microsoft.IdentityModel.Tokens;
@@ -16,16 +16,19 @@ public class AnswerService : IAnswerService
     private readonly ISurveyRepository _surveyRepository;
     private readonly ICustomValidator<PostUserAnswersRequest> _processValidatior;
     private readonly ICustomValidator<GetUserSurveyAnswersRequest> _getUserSurveyAnswerValidator;
+    private readonly IGetAnswerStatisticsValidator _getAnswerStatisticsValidator;
     private readonly IMapper _mapper;
 
     public AnswerService(IAnswerRepository answerRepository, ICustomValidator<PostUserAnswersRequest> processValidatior,
         ISurveyRepository surveyRepository,
-        ICustomValidator<GetUserSurveyAnswersRequest> getUserSurveyAnswerValidator, IMapper mapper)
+        ICustomValidator<GetUserSurveyAnswersRequest> getUserSurveyAnswerValidator,
+        IGetAnswerStatisticsValidator getAnswerStatisticsValidator, IMapper mapper)
     {
         _answerRepository = answerRepository;
         _surveyRepository = surveyRepository;
         _processValidatior = processValidatior;
         _getUserSurveyAnswerValidator = getUserSurveyAnswerValidator;
+        _getAnswerStatisticsValidator = getAnswerStatisticsValidator;
         _mapper = mapper;
     }
 
@@ -68,62 +71,69 @@ public class AnswerService : IAnswerService
 
     public async Task<TypedResponse<StatisticsDTO>> GetAnswerStatistics(int surveyId)
     {
-        bool isSurveyExist = await _surveyRepository.Exists(surveyId);
-        if (!isSurveyExist)
+        bool isValid = await _getAnswerStatisticsValidator.ValidateAsync(surveyId);
+        if (!isValid)
         {
-            var notifications = new List<Notification>
-            {
-                new Notification("SurveyId", $"Survey cannot be found with Id: {surveyId}")
-            };
-            return TypedResponse<StatisticsDTO>.Failure(notifications);
+            return TypedResponse<StatisticsDTO>.Failure(_getAnswerStatisticsValidator.Notifications);
         }
-
-        var questionStats = new List<QuestionStatisticsDTO>();
-
+        
         var answers = await _answerRepository.GetAnswersBySurveyId(surveyId);
-        if (!answers.IsNullOrEmpty())
-        {
-            var answerGroups = answers.GroupBy(a => new { a.Question, a.Department })
-                .Select(g => new DepartmentAnswer()
-                {
-                    QuestionId = g.Key.Question.Id,
-                    Department = g.Key.Department,
-                    Texts = g.Key.Question.Texts,
-                    Answers = g.ToList()
-                })
-                .ToList();
-            var questions = answerGroups.Select(a => a.QuestionId).Distinct().ToList();
 
-            foreach (var questionId in questions)
-            {
-                var departmentStats = new Dictionary<string, AnswerStatisticDTO>();
-                var departments = answerGroups.Select(s => s.Department);
-                
-                foreach (var department in departments)
-                {
-                    var departmentAnswerGroup = answerGroups.FirstOrDefault(ag =>
-                        ag.QuestionId == questionId &&
-                        ag.Department.Equals(department, StringComparison.OrdinalIgnoreCase));
-
-                    if (departmentAnswerGroup != null && departmentAnswerGroup.Answers.Count > 0)
-                    {
-                        GetDepartmentStatistics(departmentAnswerGroup.Answers, departmentStats, department);
-                    }
-                }
-
-                Dictionary<string, string> texts = answerGroups
-                    .FirstOrDefault(s => s.QuestionId.Equals(questionId))?.Texts;
-                
-                questionStats.Add(new QuestionStatisticsDTO
-                    { QuestionId = questionId, Texts = texts ,DepartmentStats = departmentStats });
-            }
-        }
-
+        var questionStats = GetQuestionStatistics(answers);
         return TypedResponse<StatisticsDTO>.Success(new StatisticsDTO
             { SurveyId = surveyId, QuestionStatistics = questionStats });
     }
 
-    private static void GetDepartmentStatistics(List<Answer> answers, Dictionary<string, AnswerStatisticDTO> departmentStats,
+    private List<QuestionStatisticsDTO> GetQuestionStatistics(IEnumerable<Answer> answers)
+    {
+        var answerGroups = answers.GroupBy(a => new { a.Question, a.Department })
+            .Select(g => new DepartmentAnswer
+            {
+                QuestionId = g.Key.Question.Id,
+                Department = g.Key.Department,
+                Texts = g.Key.Question.Texts,
+                Answers = g.ToList()
+            })
+            .ToList();
+
+        var questions = answerGroups.Select(a => a.QuestionId).Distinct().ToList();
+        var questionStats = new List<QuestionStatisticsDTO>();
+
+        foreach (var questionId in questions)
+        {
+            var departmentStats = GetDepartmentStatisticsForQuestion(answerGroups, questionId);
+            var texts = answerGroups.FirstOrDefault(s => s.QuestionId.Equals(questionId))?.Texts;
+
+            questionStats.Add(new QuestionStatisticsDTO
+                { QuestionId = questionId, Texts = texts, DepartmentStats = departmentStats });
+        }
+
+        return questionStats;
+    }
+
+    private Dictionary<string, AnswerStatisticDTO> GetDepartmentStatisticsForQuestion(
+        List<DepartmentAnswer> answerGroups, int questionId)
+    {
+        var departmentStats = new Dictionary<string, AnswerStatisticDTO>();
+        var departments = answerGroups.Select(s => s.Department).Distinct().ToList();
+
+        foreach (var department in departments)
+        {
+            var departmentAnswerGroup = answerGroups.FirstOrDefault(ag =>
+                ag.QuestionId == questionId &&
+                ag.Department.Equals(department, StringComparison.OrdinalIgnoreCase));
+
+            if (departmentAnswerGroup != null && departmentAnswerGroup.Answers.Count > 0)
+            {
+                GetDepartmentStatistics(departmentAnswerGroup.Answers, departmentStats, department);
+            }
+        }
+
+        return departmentStats;
+    }
+
+    private static void GetDepartmentStatistics(List<Answer> answers,
+        Dictionary<string, AnswerStatisticDTO> departmentStats,
         string department)
     {
         var min = answers.Min(a => a.AnswerOption.Score);

@@ -9,4 +9,6 @@ public interface IAnswerRepository : IRepository<Answer>
     Task<bool> UserHasCompletedSurvey(int userId, int surveyId);
 
     Task<List<Answer>> GetAnswersBySurveyId(int surveyId);
+
+    Task<bool> ExistsBySurveyId(int surveyId);
 }
