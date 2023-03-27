@@ -1,5 +1,6 @@
 using Common.DTOs;
 using Common.Enums;
+using Microsoft.IdentityModel.Tokens;
 using Persistence.IRepositories;
 
 namespace Application.Validator;
@@ -8,13 +9,15 @@ public class AnswerProcessValidator : ICustomValidator<PostUserAnswersRequest>
 {
     private readonly IQuestionRepository _questionRepository;
     private readonly ISurveyRepository _surveyRepository;
+    private readonly IAnswerOptionRepository _answerOptionRepository;
     private readonly List<Notification> _notifications;
 
-    public AnswerProcessValidator(IQuestionRepository questionRepository, ISurveyRepository surveyRepository)
+    public AnswerProcessValidator(IQuestionRepository questionRepository, ISurveyRepository surveyRepository, IAnswerOptionRepository answerOptionRepository)
     {
         _questionRepository = questionRepository;
         _surveyRepository = surveyRepository;
         _notifications = new List<Notification>();
+        _answerOptionRepository = answerOptionRepository;
     }
 
     public IReadOnlyList<Notification> Notifications => _notifications;
@@ -35,7 +38,7 @@ public class AnswerProcessValidator : ICustomValidator<PostUserAnswersRequest>
 
         foreach (var questionAnswer in answerDto.QuestionAnswers)
         {
-            var question = await _questionRepository.FindAsync(questionAnswer.QuestionId);
+            var question = await _questionRepository.GetWithAnswerOptionsAsync(questionAnswer.QuestionId);
 
             if (question == null)
             {
@@ -55,6 +58,25 @@ public class AnswerProcessValidator : ICustomValidator<PostUserAnswersRequest>
                 {
                     _notifications.Add(new Notification("AnswerOptionIds",
                         $"Only one answer option is allowed for question: {questionAnswer.QuestionId}"));
+                }
+
+                bool areAllOptionIdsValid =
+                    await _answerOptionRepository.AreAllOptionIdsValidAsync(questionAnswer.AnswerOptionIds);
+
+                if (!areAllOptionIdsValid)
+                {
+                    _notifications.Add(new Notification("AnswerOptionIds",
+                        $"Ids are invalid: {string.Join(";", questionAnswer.AnswerOptionIds)}"));
+                }
+
+                if (!question.AnswerOptions.IsNullOrEmpty())
+                {
+                    var questionAnswerOptionsIds = question.AnswerOptions.Select(a => a.Id);
+                    if (!questionAnswerOptionsIds.All(a => questionAnswer.AnswerOptionIds.Contains(a)))
+                    {
+                        _notifications.Add(new Notification("AnswerOptionIds",
+                            $"List values do not match with question answer options for question: {questionAnswer.QuestionId}"));
+                    }
                 }
             }
 

@@ -37,4 +37,9 @@ public class QuestionRepository : Repository<Question>, IQuestionRepository
             .Take(limit)
             .ToListAsync();
     }
+    
+    public Task<Question> GetWithAnswerOptionsAsync(int id)
+    {
+        return _questionnaireDbContext.Questions.Include(q=>q.AnswerOptions).FirstOrDefaultAsync(s=>s.Id.Equals(id));
+    }
 }

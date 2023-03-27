@@ -98,6 +98,7 @@ builder.Services.AddScoped<ISurveyRepository, SurveyRepository>();
 builder.Services.AddScoped<ISurveyService, SurveyService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
+builder.Services.AddScoped<IAnswerOptionRepository, AnswerOptionRepository>();
 
 builder.Services.AddScoped<ICustomValidator<PostUserAnswersRequest>, AnswerProcessValidator>();
 builder.Services.AddScoped<ICustomValidator<GetUserSurveyAnswersRequest>, GetUserSurveyAnswersValidator>();
