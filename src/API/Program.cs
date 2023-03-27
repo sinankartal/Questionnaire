@@ -106,11 +106,8 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
+app.UseSwaggerUI();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwaggerUI();
-}
 
 AddSeedData(app);
 app.UseHttpsRedirection();
@@ -123,8 +120,6 @@ app.Run();
 
 static void AddSeedData(WebApplication app)
 {
-    // MongoClient client = new MongoClient("mongodb+srv://sinankartal:1BES8wFlmTnXIF4l@cluster0.yc5bf.mongodb.net/?retryWrites=true&w=majority");
-    
     var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetService<QuestionnaireDbContext>();
 
