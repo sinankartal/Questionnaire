@@ -1,3 +1,4 @@
+using Common.DTOs;
 using Persistence.Models;
 
 namespace Persistence.IRepositories;
@@ -8,7 +9,6 @@ public interface IAnswerRepository : IRepository<Answer>
 
     Task<bool> UserHasCompletedSurvey(int userId, int surveyId);
 
-    Task<List<Answer>> GetAnswersBySurveyId(int surveyId);
-
+    Task<List<DepartmentAnswer>> GetGroupedAnswersBySurveyId(int surveyId);
     Task<bool> ExistsBySurveyId(int surveyId);
 }

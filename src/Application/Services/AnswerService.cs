@@ -13,19 +13,16 @@ namespace Application.Services;
 public class AnswerService : IAnswerService
 {
     private readonly IAnswerRepository _answerRepository;
-    private readonly ISurveyRepository _surveyRepository;
     private readonly ICustomValidator<PostUserAnswersRequest> _processValidatior;
     private readonly ICustomValidator<GetUserSurveyAnswersRequest> _getUserSurveyAnswerValidator;
     private readonly IGetAnswerStatisticsValidator _getAnswerStatisticsValidator;
     private readonly IMapper _mapper;
 
     public AnswerService(IAnswerRepository answerRepository, ICustomValidator<PostUserAnswersRequest> processValidatior,
-        ISurveyRepository surveyRepository,
         ICustomValidator<GetUserSurveyAnswersRequest> getUserSurveyAnswerValidator,
         IGetAnswerStatisticsValidator getAnswerStatisticsValidator, IMapper mapper)
     {
         _answerRepository = answerRepository;
-        _surveyRepository = surveyRepository;
         _processValidatior = processValidatior;
         _getUserSurveyAnswerValidator = getUserSurveyAnswerValidator;
         _getAnswerStatisticsValidator = getAnswerStatisticsValidator;
@@ -76,30 +73,19 @@ public class AnswerService : IAnswerService
         {
             return TypedResponse<StatisticsDTO>.Failure(_getAnswerStatisticsValidator.Notifications);
         }
-        
-        var answers = await _answerRepository.GetAnswersBySurveyId(surveyId);
 
-        var questionStats = GetQuestionStatistics(answers);
+        var answerGroups = await _answerRepository.GetGroupedAnswersBySurveyId(surveyId);
+
+        var questionStats = GetQuestionStatistics(answerGroups);
         return TypedResponse<StatisticsDTO>.Success(new StatisticsDTO
             { SurveyId = surveyId, QuestionStatistics = questionStats });
     }
-
-    private List<QuestionStatisticsDTO> GetQuestionStatistics(IEnumerable<Answer> answers)
+    private List<QuestionStatisticsDTO> GetQuestionStatistics(List<DepartmentAnswer> answerGroups)
     {
-        var answerGroups = answers.GroupBy(a => new { a.Question, a.Department })
-            .Select(g => new DepartmentAnswer
-            {
-                QuestionId = g.Key.Question.Id,
-                Department = g.Key.Department,
-                Texts = g.Key.Question.Texts,
-                Answers = g.ToList()
-            })
-            .ToList();
-
-        var questions = answerGroups.Select(a => a.QuestionId).Distinct().ToList();
+        var questionIds = answerGroups.Select(a => a.QuestionId).Distinct().ToList();
         var questionStats = new List<QuestionStatisticsDTO>();
 
-        foreach (var questionId in questions)
+        foreach (var questionId in questionIds)
         {
             var departmentStats = GetDepartmentStatisticsForQuestion(answerGroups, questionId);
             var texts = answerGroups.FirstOrDefault(s => s.QuestionId.Equals(questionId))?.Texts;
@@ -138,7 +124,7 @@ public class AnswerService : IAnswerService
     {
         var min = answers.Min(a => a.AnswerOption.Score);
         var max = answers.Max(a => a.AnswerOption.Score);
-        var avg = answers.Average(a => a.AnswerOption.Score);
+        var avg = Math.Round(answers.Average(a => a.AnswerOption.Score), 2);
 
         departmentStats[department] = new AnswerStatisticDTO { Min = min, Max = max, Avg = avg };
     }

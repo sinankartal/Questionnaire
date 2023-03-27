@@ -12,7 +12,8 @@ public class AnswerProcessValidator : ICustomValidator<PostUserAnswersRequest>
     private readonly IAnswerOptionRepository _answerOptionRepository;
     private readonly List<Notification> _notifications;
 
-    public AnswerProcessValidator(IQuestionRepository questionRepository, ISurveyRepository surveyRepository, IAnswerOptionRepository answerOptionRepository)
+    public AnswerProcessValidator(IQuestionRepository questionRepository, ISurveyRepository surveyRepository,
+        IAnswerOptionRepository answerOptionRepository)
     {
         _questionRepository = questionRepository;
         _surveyRepository = surveyRepository;
@@ -54,7 +55,8 @@ public class AnswerProcessValidator : ICustomValidator<PostUserAnswersRequest>
                     _notifications.Add(new Notification("AnswerOptionIds",
                         $"Answer options are required for question: {questionAnswer.QuestionId}"));
                 }
-                else if (question.AnswerCategoryType == (int)AnswerCategoryType.ONE_SELECT && questionAnswer.AnswerOptionIds.Count > 1)
+                else if (question.AnswerCategoryType == (int)AnswerCategoryType.ONE_SELECT &&
+                         questionAnswer.AnswerOptionIds.Count > 1)
                 {
                     _notifications.Add(new Notification("AnswerOptionIds",
                         $"Only one answer option is allowed for question: {questionAnswer.QuestionId}"));
@@ -72,7 +74,9 @@ public class AnswerProcessValidator : ICustomValidator<PostUserAnswersRequest>
                 if (!question.AnswerOptions.IsNullOrEmpty())
                 {
                     var questionAnswerOptionsIds = question.AnswerOptions.Select(a => a.Id);
-                    if (!questionAnswerOptionsIds.All(a => questionAnswer.AnswerOptionIds.Contains(a)))
+                    bool allElementsContained =
+                        questionAnswer.AnswerOptionIds.ToList().All(i => questionAnswerOptionsIds.Contains(i));
+                    if (!allElementsContained)
                     {
                         _notifications.Add(new Notification("AnswerOptionIds",
                             $"List values do not match with question answer options for question: {questionAnswer.QuestionId}"));

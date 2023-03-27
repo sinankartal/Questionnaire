@@ -1,5 +1,4 @@
 using Application.Validator.IValidators;
-using Common.Requests;
 using Persistence.IRepositories;
 
 namespace Application.Validator;

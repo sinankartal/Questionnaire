@@ -1,3 +1,4 @@
+using Common.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using Persistence.IRepositories;
@@ -29,14 +30,21 @@ public class AnswerRepository : Repository<Answer>, IAnswerRepository
         return _dbContext.Answers.AnyAsync(answer => answer.UserId == userId && answer.SurveyId == surveyId);
     }
     
-    public  Task<List<Answer>> GetAnswersBySurveyId(int surveyId)
+    public async Task<List<DepartmentAnswer>> GetGroupedAnswersBySurveyId(int surveyId)
     {
-        return _dbContext.Answers
+        return await _dbContext.Answers
             .Include(a => a.AnswerOption)
-            .Include(s=>s.Question)
+            .Include(a => a.Question)
             .Where(a => a.SurveyId == surveyId && a.AnswerOptionId != null)
+            .GroupBy(a => new { a.Question, a.Department })
+            .Select(g => new DepartmentAnswer
+            {
+                QuestionId = g.Key.Question.Id,
+                Department = g.Key.Department,
+                Texts = g.Key.Question.Texts,
+                Answers = g.ToList()
+            })
             .ToListAsync();
-        
     }
 
     public Task<bool> ExistsBySurveyId(int surveyId)

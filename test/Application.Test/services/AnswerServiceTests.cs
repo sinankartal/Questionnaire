@@ -14,7 +14,6 @@ namespace Application.Test.services;
 public class AnswerServiceTests
 {
     private readonly Mock<IAnswerRepository> _answerRepositoryMock;
-    private readonly Mock<ISurveyRepository> _surveyRepositoryMock;
     private readonly Mock<ICustomValidator<PostUserAnswersRequest>> _processValidatorMock;
     private readonly Mock<ICustomValidator<GetUserSurveyAnswersRequest>> _getUserSurveyAnswerValidatorMock;
     private readonly Mock<IGetAnswerStatisticsValidator> _getAnswerStatisticsValidatorMock;
@@ -24,13 +23,12 @@ public class AnswerServiceTests
     public AnswerServiceTests()
     {
         _answerRepositoryMock = new Mock<IAnswerRepository>();
-        _surveyRepositoryMock = new Mock<ISurveyRepository>();
         _processValidatorMock = new Mock<ICustomValidator<PostUserAnswersRequest>>();
         _getUserSurveyAnswerValidatorMock = new Mock<ICustomValidator<GetUserSurveyAnswersRequest>>();
         _getAnswerStatisticsValidatorMock = new Mock<IGetAnswerStatisticsValidator>();
         _mapperMock = new Mock<IMapper>();
         _answerService = new AnswerService(_answerRepositoryMock.Object, _processValidatorMock.Object,
-            _surveyRepositoryMock.Object, _getUserSurveyAnswerValidatorMock.Object,
+            _getUserSurveyAnswerValidatorMock.Object,
             _getAnswerStatisticsValidatorMock.Object, _mapperMock.Object);
     }
 
@@ -174,9 +172,6 @@ public class AnswerServiceTests
         // Arrange
         int surveyId = 1;
 
-        _surveyRepositoryMock.Setup(x => x.Exists(surveyId)).ReturnsAsync(true);
-        _getAnswerStatisticsValidatorMock.Setup(x => x.ValidateAsync(surveyId)).ReturnsAsync(true);
-
         var question = new Question
         {
             Id = 1,
@@ -195,24 +190,33 @@ public class AnswerServiceTests
             Score = 1,
             Texts = null
         };
-        
-        var answerList = new List<Answer>
+
+        var answer = new Answer
         {
-            new Answer
+            Id = 1,
+            UserId = 1,
+            SurveyId = 1,
+            Department = "SALES",
+            QuestionId = 1,
+            AnswerOptionId = 1,
+            CreatedDate = DateTime.Now,
+            Question = question,
+            AnswerOption = answerOption
+        };
+
+        var departmentAnswerList = new List<DepartmentAnswer>
+        {
+            new DepartmentAnswer
             {
-                Id = 1,
-                UserId = 1,
-                SurveyId = 1,
-                Department = "SALES",
                 QuestionId = 1,
-                AnswerOptionId = 1,
-                CreatedDate = DateTime.Now,
-                Question = question,
-                AnswerOption = answerOption
+                Department = "SALES",
+                Texts = null,
+                Answers = new List<Answer> { answer }
             }
         };
 
-        _answerRepositoryMock.Setup(x => x.GetAnswersBySurveyId(surveyId)).ReturnsAsync(answerList);
+        _getAnswerStatisticsValidatorMock.Setup(x => x.ValidateAsync(surveyId)).ReturnsAsync(true);
+        _answerRepositoryMock.Setup(x => x.GetGroupedAnswersBySurveyId(surveyId)).ReturnsAsync(departmentAnswerList);
 
         var expectedDepartmentAnswers = new AnswerStatisticDTO
         {
@@ -221,7 +225,7 @@ public class AnswerServiceTests
             Min = 1
         };
 
-            // Act
+        // Act
         var result = await _answerService.GetAnswerStatistics(surveyId);
 
         // Assert
