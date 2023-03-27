@@ -25,7 +25,7 @@ public class AnswerProcessValidator : ICustomValidator<PostUserAnswersRequest>
 
     public async Task<bool> ValidateAsync(PostUserAnswersRequest answerDto)
     {
-        if (!Enum.TryParse(typeof(Department), answerDto.Department, out _))
+        if (!Enum.TryParse(typeof(Department), answerDto.Department.ToUpperInvariant(), out _))
         {
             _notifications.Add(new Notification("Department", "Invalid department value"));
         }
