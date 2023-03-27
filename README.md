@@ -74,21 +74,25 @@ B. Run the application on local machine
     git clone <repository_link>
 
 2. Navigate to the API Folder 📁
+
     Next, move to the "API" folder, which is located within the "src" folder:
     cd src/API
 
 3. Build and Run the Application 🏗️
+
     Execute the following commands to build and run the application:
     dotnet build
     dotnet run
 
 
 4. Local Machine API Hosting 🖥️
+
     By default, the API will be hosted on your local machine at:
     http://localhost:5064
     Note: The port number 5064 is specified in the launchSettings.json file.
 
 5. Explore and Test the API 🔍
+
     Visit http://localhost:5064 in your browser to view the available endpoints and test the API using Swagger.
     That's it! You're all set to start using the Questionnaire! 🎉
 
