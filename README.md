@@ -62,10 +62,12 @@ POST /Token/login: Authenticates the user using the provided username and passwo
 Follow these easy steps to get the application up and running in no time!
 
 A. Access the Hosted Application 🌐
+
 The application is hosted on the following URL:
 https://sk-questionnaire.azurewebsites.net/swagger/index.html
 
 B. Run the application on local machine
+
 1.Clone the Repository 🚀
 Begin by cloning the GitHub repository using the provided link.
 
