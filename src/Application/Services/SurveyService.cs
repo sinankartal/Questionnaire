@@ -1,6 +1,4 @@
-using System.Net;
 using AutoMapper;
-using Common;
 using Common.DTOs;
 using Common.Responses;
 using Persistence.IRepositories;
