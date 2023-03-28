@@ -1,36 +1,37 @@
 # Questionnaire API
 This application provides a sophisticated and user-friendly web API for managing surveys, questions, and user answers. Designed for individuals responsible for survey management, the application offers a range of features that streamline the survey creation and monitoring process, such as:
 
-Viewing a comprehensive list of existing surveys
-Accessing a paginated list of questions for a specific survey or subject
-Submitting user answers for designated survey questions
-Reviewing a user's submitted answers for a particular survey
-Retrieving aggregated answer statistics for insightful survey analysis
-Leveraging the power of Azure, the application is hosted as a web app on the Azure portal and integrated with a GitHub repository. This seamless integration enables automatic code building and deployment upon each new merge to master branch. Although the application serves as an API, it also features Swagger documentation, which can be accessed at https://sk-questionnaire.azurewebsites.net/swagger/index.html for an interactive and visual representation of the API's endpoints.
+- Viewing a comprehensive list of existing surveys
+- Accessing a paginated list of questions for a specific survey or subject
+- Submitting user answers for designated survey questions
+- Reviewing a user's submitted answers for a particular survey
+- Retrieving aggregated answer statistics for insightful survey analysis
+- Leveraging the power of Azure, the application is hosted as a web app on the Azure portal and integrated with a GitHub repository. This seamless integration enables automatic code building and deployment upon each new merge to master branch. Although the application serves as an API, it also features Swagger documentation, which can be accessed at https://sk-questionnaire.azurewebsites.net/swagger/index.html for an interactive and visual representation of the API's endpoints.
 
 The application boasts a robust design, employing an n-layer architecture to facilitate maintainability and scalability. Additional features that enhance the application's functionality and user experience include:
 
-An error handler middleware to manage exceptions and provide consistent error responses
-JWT token-based user authentication for secure access control
-A notification pattern to streamline control flow
-With its extensive feature set, elegant design, and seamless integration with cloud-based services, this application offers an efficient and intuitive solution for managing surveys, questions, and user answers.
+- An error handler middleware to manage exceptions and provide consistent error responses
+- JWT token-based user authentication for secure access control
+- A notification pattern to streamline control flow
+- With its extensive feature set, elegant design, and seamless integration with cloud-based services, this application offers an efficient and intuitive solution for managing surveys, questions, and user answers.
+ - The application also includes a custom Performance Logging Middleware that measures and logs the duration of API calls, providing valuable insights into the performance of various endpoints. This middleware uses a Stopwatch to track the elapsed time of each request and logs the duration in milliseconds, along with the HTTP method and request path. This information can be invaluable for identifying performance bottlenecks, optimizing the application's responsiveness, and enhancing the overall user experience. The Performance Logging Middleware leverages Serilog, a powerful and flexible logging library, ensuring that performance data is consistently and accurately captured.
 
 ## Configuration
-SDK: The latest version of .NET 7 should be installed to run the application.
-IDE: The application is developed using Rider. You can use this IDE or Visual Studio to open and run the application.
-Database: The application uses an in-memory database, no additional setup is required to run the application.
-Logging: The application uses serilog for logging, the configuration for serilog is already done.
-Environment variables: Application does not use any environment variables.
-Additional setup: The application does not require any additional setup.
-Dependencies: The application depends on the latest version of the .NET 7 SDK and it will automatically install the required packages when you build the solution.
-Configuration files: The application uses an appsettings.json configuration file to store settings such as database and other settings. This file is already included in the solution and no additional setup is required. If you need to make changes to the configuration, you can modify the appsettings.json file.
+- SDK: The latest version of .NET 7 should be installed to run the application.
+- IDE: The application is developed using Rider. You can use this IDE or Visual Studio to open and run the application.
+- Database: The application uses an in-memory database, no additional setup is required to run the application.
+- Logging: The application uses Serilog for logging, the configuration for Serilog is already done.
+- Environment variables: Application does not use any environment variables.
+- Additional setup: The application does not require any additional setup.
+- Dependencies: The application depends on the latest version of the .NET 7 SDK and it will automatically install the required packages when you build the solution.
+- Configuration files: The application uses an appsettings.json configuration file to store settings such as database and other settings. This file is already included in the solution and no additional setup is required. If you need to make changes to the configuration, you can modify the appsettings.json file.
 
 ## Assumptions
 
-The questionnaire.json file serves as sample data for the application.
-Each answer option has a score value that corresponds to its order number in the sequence.
-User validation is not required; any integer provided for userId will be accepted by the system as a valid user.
-A user can submit answers multiple times using the same or different requests.
+- The questionnaire.json file serves as sample data for the application.
+- Each answer option has a score value that corresponds to its order number in the sequence.
+- User validation is not required; any integer provided for userId will be accepted by the system as a valid user.
+- A user can submit answers multiple times using the same or different requests.
 
 ## Controller Endpoints
 
