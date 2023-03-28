@@ -14,7 +14,7 @@ The application boasts a robust design, employing an n-layer architecture to fac
 - JWT token-based user authentication for secure access control
 - A notification pattern to streamline control flow
 - With its extensive feature set, elegant design, and seamless integration with cloud-based services, this application offers an efficient and intuitive solution for managing surveys, questions, and user answers.
- - The application also includes a custom Performance Logging Middleware that measures and logs the duration of API calls, providing valuable insights into the performance of various endpoints. This middleware uses a Stopwatch to track the elapsed time of each request and logs the duration in milliseconds, along with the HTTP method and request path. This information can be invaluable for identifying performance bottlenecks, optimizing the application's responsiveness, and enhancing the overall user experience. The Performance Logging Middleware leverages Serilog, a powerful and flexible logging library, ensuring that performance data is consistently and accurately captured.
+ - The application also includes a custom Performance Logging Middleware that measures and logs the duration of API calls, providing valuable insights into the performance of various endpoints.
 
 ## Configuration
 - SDK: The latest version of .NET 7 should be installed to run the application.
