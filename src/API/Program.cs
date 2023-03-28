@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text;
 using API.JsonParse;
 using API.Middlewares;
@@ -20,6 +19,7 @@ using Persistence.Data;
 using Persistence.IRepositories;
 using Persistence.Models;
 using Serilog;
+using ILogger = Serilog.ILogger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,20 +61,13 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-
-var relativeLogFilePath = builder.Configuration.GetSection("Serilog:WriteTo:1:Args:path").Value;
-var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-var srcDirectory = Directory.GetParent(assemblyDirectory).Parent.Parent.Parent.FullName;
-var logsDirectory = Path.Combine(srcDirectory, Path.GetDirectoryName(relativeLogFilePath));
-Directory.CreateDirectory(logsDirectory);
-var logFileName = Path.GetFileName(relativeLogFilePath);
-var absoluteLogFilePath = Path.Combine(logsDirectory, logFileName);
-
-// Update the configuration with the absolute log file path
-builder.Configuration.GetSection("Serilog:WriteTo:1:Args:path").Value = absoluteLogFilePath;
-
-builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
+//logger
+var logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .CreateLogger();
+builder.Logging.AddSerilog(logger);
+builder.Services.AddSingleton(typeof(ILogger), Log.Logger);
 
 //Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -126,7 +119,7 @@ app.UseMiddleware<PerformanceLoggingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseSerilogRequestLogging();
+
 app.Run();
 
 static void AddSeedData(WebApplication app)
